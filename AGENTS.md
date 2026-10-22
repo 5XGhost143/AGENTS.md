@@ -61,7 +61,7 @@ public class Player {
 
 ## 5. Project Structure
 
-The root contains only the entry point, project and build files, and top-level configuration. All other code lives in `Source/`.
+The root contains only the entry point, project and build files, top-level configuration, and the `Scripts/` and `Tests/` folders. All other code lives in `Source/`.
 
 ### Root
 
@@ -78,6 +78,21 @@ The root contains only the entry point, project and build files, and top-level c
 - Platform and API wrappers get their own folder named after the API, e.g. `Win32/`, `Vulkan/`, `OpenGL/`, `Sqlite/`.
 - Split a feature folder into subfolders only when it grows large enough to need it.
 
+### Scripts Folder
+
+- Every project has a `Scripts/` folder in the root.
+- It always contains at least one script to build the project and one script to run the tests: `build` and `test`.
+- Use the script type that fits the platform: `.ps1` for Windows projects, `.sh` for Linux and macOS. Provide both when the project is cross-platform.
+- Scripts must work when started from any directory and must exit with a non-zero code on failure.
+- Always build and test through these scripts instead of typing the commands by hand.
+- Other recurring tasks (run, clean, publish, format) also go into `Scripts/`.
+
+### Tests Folder
+
+- Tests live in a `Tests/` folder in the root, never mixed into `Source/`.
+- The structure inside `Tests/` mirrors the feature folders in `Source/`: tests for `Source/Physics/` go in `Tests/Physics/`.
+- For C# this is a separate test project referenced by the solution.
+
 ### Example (C#)
 
 ```
@@ -87,6 +102,12 @@ MyGame/
 ├── Program.cs
 ├── README.md
 ├── AGENTS.md
+├── Scripts/
+│   ├── build.ps1
+│   └── test.ps1
+├── Tests/
+│   └── Physics/
+│       └── PhysicsWorldTests.cs
 └── Source/
     ├── Physics/
     │   ├── PhysicsWorld.cs
@@ -110,6 +131,12 @@ MyEngine/
 ├── main.cpp
 ├── README.md
 ├── AGENTS.md
+├── Scripts/
+│   ├── build.sh
+│   └── test.sh
+├── Tests/
+│   └── Physics/
+│       └── PhysicsWorldTests.cpp
 └── Source/
     ├── Physics/
     │   ├── PhysicsWorld.cpp
@@ -127,6 +154,12 @@ my_tool/
 ├── requirements.txt
 ├── README.md
 ├── AGENTS.md
+├── Scripts/
+│   ├── build.sh
+│   └── test.sh
+├── Tests/
+│   └── parsing/
+│       └── test_csv_reader.py
 └── Source/
     ├── parsing/
     │   └── csv_reader.py
@@ -134,7 +167,17 @@ my_tool/
         └── http_client.py
 ```
 
-## 6. General Behavior
+## 6. Testing
+
+- Always test the code. No task is finished until the code has been built and the tests have passed.
+- After every change, run `Scripts/build` and `Scripts/test` and read the output.
+- Write tests for all new features and bug fixes. For a bug fix, add a test that fails without the fix.
+- Test behavior and edge cases, not implementation details. Keep tests small, independent, and deterministic.
+- Tests follow the same style rules as all other code: no comments, K&R braces, clean spacing, clear names. Name tests after what they check, e.g. `Update_WhenHealthIsZero_RespawnsPlayer`.
+- If a test fails, fix the code. Never delete, skip, or weaken a test just to make it pass, unless the test itself is wrong.
+- Never claim that something works or was tested without having run it. If the code cannot be built or tested in the current environment, say so clearly.
+
+## 7. General Behavior
 
 - Match the existing style of the file or project when editing, as long as it does not conflict with the rules above.
 - Make the smallest change that solves the task. Do not reformat or refactor unrelated code.
